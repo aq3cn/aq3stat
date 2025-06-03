@@ -145,15 +145,15 @@ CREATE DATABASE aq3stat CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 - **开发环境**: http://localhost:8080
 - **生产环境**: https://your-domain.com
 
-<p align="center">
 - 登录界面
-  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-denglu.png" width="300" />
-- 前台首页
-  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-qt.png" width="500" />
-- 后台首页
-  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-ht.png" width="500" />
+  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-denglu.png"></img>
 
-</p>
+- 前台首页
+  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-qt.png"></img>
+
+- 后台首页
+  <img src="https://github.com/aq3cn/aq3stat/raw/main/docs/images/aq3stat-ht.png"></img>
+
 
 ### 默认管理员账号
 

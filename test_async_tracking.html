@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aq3stat 异步统计代码测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .tracking-area {
+            background: #e8f4fd;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px dashed #007cba;
+            border-radius: 5px;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>aq3stat 异步统计代码测试页面</h1>
+    
+    <div class="status info">
+        <strong>测试说明：</strong>这个页面用于测试aq3stat统计代码的异步加载功能。
+        页面加载完成后，统计代码会异步加载并在下方显示统计图标。
+    </div>
+
+    <div class="test-section">
+        <h2>1. 异步加载统计代码测试</h2>
+        <p>以下区域将显示异步加载的统计图标：</p>
+        
+        <div class="tracking-area">
+            <p><strong>统计图标显示区域：</strong></p>
+            <!-- 统计代码将在这里异步加载并显示图标 -->
+            <div id="tracking-result">
+                <em>等待统计代码加载...</em>
+            </div>
+        </div>
+
+        <h3>使用的统计代码：</h3>
+        <pre><code>&lt;script type="text/javascript"&gt;
+// aq3stat Tracking Code
+(function() {
+  var hs = document.createElement('script');
+  hs.type = 'text/javascript';
+  hs.async = true;
+  hs.src = 'http://localhost:8080/counter.js?id=7&icon=1';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(hs, s);
+})();
+&lt;/script&gt;</code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 页面信息</h2>
+        <ul>
+            <li><strong>当前页面URL：</strong> <span id="current-url"></span></li>
+            <li><strong>来源页面：</strong> <span id="referrer"></span></li>
+            <li><strong>屏幕分辨率：</strong> <span id="screen-info"></span></li>
+            <li><strong>浏览器语言：</strong> <span id="language"></span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 测试结果</h2>
+        <div id="test-results">
+            <div class="status info">
+                测试结果将在统计代码加载后显示...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示页面信息
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('referrer').textContent = document.referrer || '(直接访问)';
+        document.getElementById('screen-info').textContent = screen.width + 'x' + screen.height + ' (' + screen.colorDepth + '位色彩)';
+        document.getElementById('language').textContent = navigator.language || navigator.systemLanguage || '未知';
+
+        // 监控统计代码加载
+        var checkInterval = setInterval(function() {
+            var trackingArea = document.querySelector('.tracking-area');
+            var links = trackingArea.querySelectorAll('a[title="aq3stat统计"]');
+            var iframes = trackingArea.querySelectorAll('iframe[src*="/collect"]');
+            
+            if (links.length > 0 || iframes.length > 0) {
+                document.getElementById('tracking-result').innerHTML = 
+                    '<div class="status success">' +
+                    '<strong>✓ 统计代码加载成功！</strong><br>' +
+                    '找到 ' + links.length + ' 个统计链接，' + iframes.length + ' 个跟踪iframe' +
+                    '</div>';
+                
+                document.getElementById('test-results').innerHTML = 
+                    '<div class="status success">' +
+                    '<strong>✓ 异步加载测试通过！</strong><br>' +
+                    '统计代码已成功异步加载并创建了必要的DOM元素。' +
+                    '</div>';
+                
+                clearInterval(checkInterval);
+            }
+        }, 500);
+
+        // 5秒后如果还没有检测到，显示失败信息
+        setTimeout(function() {
+            if (document.querySelector('.tracking-area .status.success') === null) {
+                document.getElementById('tracking-result').innerHTML = 
+                    '<div class="status" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">' +
+                    '<strong>✗ 统计代码加载失败</strong><br>' +
+                    '5秒内未检测到统计元素，请检查网络连接和服务器状态。' +
+                    '</div>';
+                
+                clearInterval(checkInterval);
+            }
+        }, 5000);
+    </script>
+
+    <!-- aq3stat 异步统计代码 -->
+    <script type="text/javascript">
+    // aq3stat Tracking Code
+    (function() {
+      var hs = document.createElement('script');
+      hs.type = 'text/javascript';
+      hs.async = true;
+      hs.src = 'http://localhost:8080/counter.js?id=7&icon=1';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(hs, s);
+    })();
+    </script>
+
+</body>
+</html>

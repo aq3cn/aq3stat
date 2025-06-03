@@ -1,0 +1,46 @@
+# aq3stat 数据库配置文件
+
+# 开发环境配置
+development:
+  driver: mysql
+  host: localhost
+  port: 3306
+  database: aq3stat
+  username: root
+  password: 
+  charset: utf8mb4
+  parseTime: true
+  loc: Local
+  maxIdleConns: 10
+  maxOpenConns: 100
+  connMaxLifetime: 3600
+
+# 测试环境配置
+test:
+  driver: mysql
+  host: localhost
+  port: 3306
+  database: aq3stat_test
+  username: root
+  password: 
+  charset: utf8mb4
+  parseTime: true
+  loc: Local
+  maxIdleConns: 10
+  maxOpenConns: 100
+  connMaxLifetime: 3600
+
+# 生产环境配置
+production:
+  driver: mysql
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  database: ${DB_NAME}
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
+  charset: utf8mb4
+  parseTime: true
+  loc: Local
+  maxIdleConns: 20
+  maxOpenConns: 200
+  connMaxLifetime: 7200

@@ -1,0 +1,91 @@
+# aq3stat后端应用Dockerfile
+# 多阶段构建，减小最终镜像大小
+
+# 构建阶段
+FROM golang:1.20-alpine AS builder
+
+# 设置构建参数
+ARG GO_VERSION=1.20
+ARG BUILD_TIME
+ARG GIT_COMMIT
+ARG VERSION
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装必要的工具
+RUN apk add --no-cache git ca-certificates tzdata
+
+# 设置Go代理
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GOSUMDB=sum.golang.google.cn
+
+# 复制go mod文件
+COPY go.mod ./
+
+# 复制源代码
+COPY . .
+
+# 下载依赖并生成go.sum
+RUN go mod download && go mod tidy
+
+# 构建应用
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.GitCommit=${GIT_COMMIT}" \
+    -o aq3stat-server \
+    cmd/api/main.go
+
+# 运行阶段
+FROM alpine:3.18
+RUN echo "https://mirrors.aliyun.com/alpine/v3.18/main" > /etc/apk/repositories && echo "https://mirrors.aliyun.com/alpine/v3.18/community" >> /etc/apk/repositories
+
+# 设置标签
+LABEL maintainer="aq3stat Team <support@aq3stat.com>"
+LABEL description="aq3stat Website Statistics System Backend"
+LABEL version="${VERSION}"
+
+# 安装运行时依赖
+RUN apk add --no-cache \
+    ca-certificates \
+    tzdata \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+
+# 创建非root用户
+RUN addgroup -g 1001 -S aq3stat && \
+    adduser -u 1001 -S aq3stat -G aq3stat
+
+# 创建必要的目录
+RUN mkdir -p /opt/aq3stat/logs \
+             /opt/aq3stat/uploads \
+             /opt/aq3stat/configs \
+             /var/log/aq3stat && \
+    chown -R aq3stat:aq3stat /opt/aq3stat /var/log/aq3stat
+
+# 设置工作目录
+WORKDIR /opt/aq3stat
+
+# 从构建阶段复制二进制文件
+COPY --from=builder /app/aq3stat-server .
+COPY --from=builder /app/configs ./configs
+COPY --from=builder /app/migrations ./migrations
+
+# 设置文件权限
+RUN chmod +x aq3stat-server && \
+    chown -R aq3stat:aq3stat .
+
+# 切换到非root用户
+USER aq3stat
+
+# 暴露端口
+EXPOSE 8080
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# 启动命令
+CMD ["./aq3stat-server"]

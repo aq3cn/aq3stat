@@ -1,0 +1,159 @@
+/* 全局样式 */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.container {
+  height: 100%;
+  width: 100%;
+}
+
+.el-card {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15) !important;
+}
+
+.el-table {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.el-pagination {
+  margin-top: 15px;
+}
+
+/* 登录和注册页面样式 */
+.login-container, .register-container {
+  background-color: #2b4b6b;
+  height: 100%;
+}
+
+.login-box, .register-box {
+  width: 450px;
+  height: 300px;
+  background-color: #fff;
+  border-radius: 3px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-title, .register-title {
+  color: #303133;
+  text-align: center;
+  margin: 0 auto 30px auto;
+  padding-top: 20px;
+}
+
+.btns {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 主页面布局样式 */
+.el-header {
+  background-color: #373d41;
+  display: flex;
+  justify-content: space-between;
+  padding-left: 0;
+  align-items: center;
+  color: #fff;
+  font-size: 20px;
+}
+
+.el-header .logo {
+  display: flex;
+  align-items: center;
+}
+
+.el-header .logo img {
+  height: 40px;
+  margin-right: 15px;
+}
+
+.el-aside {
+  background-color: #333744;
+}
+
+.el-menu {
+  border-right: none;
+}
+
+.el-main {
+  background-color: #eaedf1;
+}
+
+.iconfont {
+  margin-right: 10px;
+}
+
+.toggle-button {
+  background-color: #4a5064;
+  font-size: 10px;
+  line-height: 24px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+}
+
+/* 统计图表样式 */
+.chart-container {
+  width: 100%;
+  height: 400px;
+}
+
+.data-overview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.data-card {
+  flex: 1;
+  min-width: 200px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.data-card:last-child {
+  margin-right: 0;
+}
+
+.data-card .data-title {
+  font-size: 14px;
+  color: #909399;
+}
+
+.data-card .data-value {
+  font-size: 24px;
+  color: #303133;
+  margin: 10px 0;
+}
+
+.data-card .data-compare {
+  font-size: 12px;
+  color: #909399;
+}
+
+.data-card .data-compare .up {
+  color: #f56c6c;
+}
+
+.data-card .data-compare .down {
+  color: #67c23a;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 768px) {
+  .login-box, .register-box {
+    width: 90%;
+  }
+  
+  .data-card {
+    min-width: 100%;
+    margin-right: 0;
+  }
+}

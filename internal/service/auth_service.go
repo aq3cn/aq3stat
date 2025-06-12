@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"aq3stat/internal/model"
 	"aq3stat/internal/repository"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // AuthService handles authentication related business logic

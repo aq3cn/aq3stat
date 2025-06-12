@@ -9,6 +9,24 @@ export function getUsers(page = 1, pageSize = 10) {
   })
 }
 
+// 更新用户信息（管理员）
+export function updateUserByAdmin(id, data) {
+  return request({
+    url: `/admin/users/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 重置用户密码（管理员）
+export function resetUserPassword(id, data) {
+  return request({
+    url: `/admin/users/${id}/reset-password`,
+    method: 'post',
+    data
+  })
+}
+
 // 删除用户
 export function deleteUser(id) {
   return request({

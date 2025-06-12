@@ -26,7 +26,7 @@ func (s *UserService) GetUserByID(id int) (*model.User, error) {
 	return s.userRepo.FindByID(id)
 }
 
-// UpdateUser updates a user
+// UpdateUser updates a user (including password)
 func (s *UserService) UpdateUser(user *model.User) error {
 	// Check if email already exists for another user
 	existingUser, err := s.userRepo.FindByEmail(user.Email)
@@ -35,6 +35,17 @@ func (s *UserService) UpdateUser(user *model.User) error {
 	}
 
 	return s.userRepo.Update(user)
+}
+
+// UpdateUserProfile updates user profile information (excluding password)
+func (s *UserService) UpdateUserProfile(user *model.User) error {
+	// Check if email already exists for another user
+	existingUser, err := s.userRepo.FindByEmail(user.Email)
+	if err == nil && existingUser != nil && existingUser.ID != user.ID {
+		return errors.New("email already exists")
+	}
+
+	return s.userRepo.UpdateProfile(user)
 }
 
 // DeleteUser deletes a user
@@ -50,6 +61,11 @@ func (s *UserService) ListUsers(page, pageSize int) ([]model.User, int64, error)
 // ChangePassword changes a user's password
 func (s *UserService) ChangePassword(id int, oldPassword, newPassword string) error {
 	return s.userRepo.ChangePassword(id, oldPassword, newPassword)
+}
+
+// ResetPassword resets a user's password (admin only, no old password required)
+func (s *UserService) ResetPassword(id int, newPassword string) error {
+	return s.userRepo.ResetPassword(id, newPassword)
 }
 
 // GetGroups gets all user groups

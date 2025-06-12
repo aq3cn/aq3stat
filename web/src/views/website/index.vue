@@ -36,7 +36,7 @@
                 {{ new Date(scope.row.created_at).toLocaleString() }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="300">
+            <el-table-column label="操作" width="500">
               <template slot-scope="scope">
                 <el-button
                   size="mini"

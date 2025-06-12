@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"aq3stat/internal/service"
+	"github.com/gin-gonic/gin"
 )
 
 // AuthMiddleware is a middleware for authentication

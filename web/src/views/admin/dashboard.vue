@@ -136,15 +136,14 @@ export default {
   },
   mounted() {
     this.loadSystemStats()
-
-    this.$nextTick(() => {
-      this.initVisitChart()
-    })
-
     window.addEventListener('resize', this.handleResize)
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize)
+    if (this.visitChart) {
+      this.visitChart.dispose()
+      this.visitChart = null
+    }
   },
   methods: {
     // 加载系统统计数据
@@ -166,9 +165,9 @@ export default {
         this.recentWebsites = response.recentWebsites || []
         this.trendData = response.trendData || []
 
-        // 更新图表
+        // 初始化并更新图表
         this.$nextTick(() => {
-          this.updateVisitChart()
+          this.initVisitChart()
         })
       } catch (error) {
         console.error('获取系统统计数据失败:', error)
@@ -180,16 +179,40 @@ export default {
 
     // 初始化访问趋势图表
     initVisitChart() {
-      if (!this.$refs.visitChart) return
-      this.visitChart = this.$echarts.init(this.$refs.visitChart)
-      this.updateVisitChart()
+      if (!this.$refs.visitChart) {
+        return
+      }
+
+      if (!this.$echarts) {
+        return
+      }
+
+      try {
+        // 如果图表已存在，先销毁
+        if (this.visitChart) {
+          this.visitChart.dispose()
+        }
+
+        this.visitChart = this.$echarts.init(this.$refs.visitChart)
+        this.updateVisitChart()
+      } catch (error) {
+        console.error('图表初始化失败:', error)
+      }
     },
 
     // 更新访问趋势图表
     updateVisitChart() {
-      if (!this.visitChart) return
+      console.log('更新图表数据...')
+      console.log('图表实例:', this.visitChart)
+
+      if (!this.visitChart) {
+        console.error('图表实例不存在')
+        return
+      }
 
       // 准备图表数据
+      console.log('原始趋势数据:', this.trendData)
+
       const dates = this.trendData.map(item => {
         const date = new Date(item.date)
         return `${date.getMonth() + 1}月${date.getDate()}日`
@@ -197,20 +220,28 @@ export default {
       const pvData = this.trendData.map(item => item.pv)
       const ipData = this.trendData.map(item => item.ip)
 
+      console.log('处理后的数据:', { dates, pvData, ipData })
+
       const option = {
         title: {
-          text: '访问趋势（最近7天）'
+          text: '访问趋势（最近7天）',
+          left: 'center'
         },
         tooltip: {
-          trigger: 'axis'
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          }
         },
         legend: {
-          data: ['PV', 'IP']
+          data: ['PV', 'IP'],
+          top: 30
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
+          top: '15%',
           containLabel: true
         },
         xAxis: {
@@ -219,23 +250,73 @@ export default {
           data: dates.length > 0 ? dates : ['暂无数据']
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          min: 0
         },
         series: [
           {
             name: 'PV',
             type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 6,
+            lineStyle: {
+              color: '#409EFF',
+              width: 2
+            },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                  offset: 0, color: 'rgba(64, 158, 255, 0.3)'
+                }, {
+                  offset: 1, color: 'rgba(64, 158, 255, 0.1)'
+                }]
+              }
+            },
             data: pvData.length > 0 ? pvData : [0]
           },
           {
             name: 'IP',
             type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 6,
+            lineStyle: {
+              color: '#67C23A',
+              width: 2
+            },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [{
+                  offset: 0, color: 'rgba(103, 194, 58, 0.3)'
+                }, {
+                  offset: 1, color: 'rgba(103, 194, 58, 0.1)'
+                }]
+              }
+            },
             data: ipData.length > 0 ? ipData : [0]
           }
         ]
       }
 
-      this.visitChart.setOption(option)
+      console.log('图表配置:', option)
+
+      try {
+        this.visitChart.setOption(option, true)
+        console.log('图表配置设置成功')
+      } catch (error) {
+        console.error('设置图表配置失败:', error)
+      }
     },
     // 处理窗口大小变化
     handleResize() {

@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"aq3stat/internal/model"
 	"aq3stat/internal/repository"
 	"aq3stat/internal/service"
+	"github.com/gin-gonic/gin"
 )
 
 // UserController handles user related API endpoints
@@ -50,9 +50,58 @@ type UpdateUserRequest struct {
 	Email   string `json:"email" binding:"required,email"`
 	Phone   string `json:"phone"`
 	Address string `json:"address"`
+	GroupID int    `json:"group_id"`
 }
 
-// UpdateUser updates a user
+// UpdateUserProfileRequest represents an update user profile request
+type UpdateUserProfileRequest struct {
+	Email   string `json:"email" binding:"required,email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
+}
+
+// UpdateUserProfile updates user profile (for regular users)
+func (c *UserController) UpdateUserProfile(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req UpdateUserProfileRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := c.userService.GetUserByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.Email = req.Email
+	user.Phone = req.Phone
+	user.Address = req.Address
+
+	err = c.userService.UpdateUserProfile(user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Reload user with updated information
+	updatedUser, err := c.userService.GetUserByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reload user"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedUser)
+}
+
+// UpdateUser updates a user (for admin users)
 func (c *UserController) UpdateUser(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -76,14 +125,24 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	user.Email = req.Email
 	user.Phone = req.Phone
 	user.Address = req.Address
+	if req.GroupID > 0 {
+		user.GroupID = req.GroupID
+	}
 
-	err = c.userService.UpdateUser(user)
+	err = c.userService.UpdateUserProfile(user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	// Reload user with updated group information
+	updatedUser, err := c.userService.GetUserByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reload user"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedUser)
 }
 
 // DeleteUser deletes a user
@@ -161,6 +220,35 @@ func (c *UserController) ChangePassword(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
+}
+
+// ResetPasswordRequest represents a reset password request
+type ResetPasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required,min=6,max=20"`
+}
+
+// ResetPassword resets a user's password (admin only)
+func (c *UserController) ResetPassword(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req ResetPasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = c.userService.ResetPassword(id, req.NewPassword)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
 }
 
 // GetGroups gets all user groups
@@ -254,15 +342,15 @@ func (c *UserController) DeleteGroup(ctx *gin.Context) {
 
 // SystemStatsResponse represents system statistics response
 type SystemStatsResponse struct {
-	UserCount     int                    `json:"userCount"`
-	WebsiteCount  int                    `json:"websiteCount"`
-	TodayPV       int                    `json:"todayPV"`
-	TodayIP       int                    `json:"todayIP"`
-	TotalPV       int                    `json:"totalPV"`
-	TotalIP       int                    `json:"totalIP"`
-	RecentUsers   []model.User           `json:"recentUsers"`
-	RecentWebsites []model.Website       `json:"recentWebsites"`
-	TrendData     []repository.DailyStatsData `json:"trendData"`
+	UserCount      int                         `json:"userCount"`
+	WebsiteCount   int                         `json:"websiteCount"`
+	TodayPV        int                         `json:"todayPV"`
+	TodayIP        int                         `json:"todayIP"`
+	TotalPV        int                         `json:"totalPV"`
+	TotalIP        int                         `json:"totalIP"`
+	RecentUsers    []model.User                `json:"recentUsers"`
+	RecentWebsites []model.Website             `json:"recentWebsites"`
+	TrendData      []repository.DailyStatsData `json:"trendData"`
 }
 
 // GetSystemStats gets system-wide statistics for admin dashboard

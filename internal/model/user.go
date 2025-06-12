@@ -23,9 +23,37 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
+// BeforeCreate is a GORM hook that sets timestamps and hashes password before creating
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+	now := time.Now()
+	if u.CreatedAt.IsZero() {
+		u.CreatedAt = now
+	}
+	if u.UpdatedAt.IsZero() {
+		u.UpdatedAt = now
+	}
+	return u.hashPassword()
+}
+
+// BeforeUpdate is a GORM hook that sets updated timestamp and hashes password before updating
+func (u *User) BeforeUpdate(tx *gorm.DB) error {
+	u.UpdatedAt = time.Now()
+	return u.hashPassword()
+}
+
 // BeforeSave is a GORM hook that hashes the password before saving
 func (u *User) BeforeSave(tx *gorm.DB) error {
-	if u.Password != "" {
+	now := time.Now()
+	if u.CreatedAt.IsZero() {
+		u.CreatedAt = now
+	}
+	u.UpdatedAt = now
+	return u.hashPassword()
+}
+
+// hashPassword hashes the password if it's not empty and not already hashed
+func (u *User) hashPassword() error {
+	if u.Password != "" && !u.isPasswordHashed() {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
@@ -33,6 +61,11 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 		u.Password = string(hashedPassword)
 	}
 	return nil
+}
+
+// isPasswordHashed checks if the password is already hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
+func (u *User) isPasswordHashed() bool {
+	return len(u.Password) >= 60 && (u.Password[:4] == "$2a$" || u.Password[:4] == "$2b$" || u.Password[:4] == "$2y$")
 }
 
 // CheckPassword checks if the provided password is correct

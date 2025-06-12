@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"aq3stat/internal/model"
 	"aq3stat/internal/service"
+	"github.com/gin-gonic/gin"
 )
 
 // WebsiteController handles website related API endpoints

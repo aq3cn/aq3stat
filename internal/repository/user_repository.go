@@ -55,9 +55,15 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-// Update updates a user
+// Update updates a user (including password)
 func (r *UserRepository) Update(user *model.User) error {
 	return r.db.Save(user).Error
+}
+
+// UpdateProfile updates user profile information (excluding password)
+func (r *UserRepository) UpdateProfile(user *model.User) error {
+	// Use Select to only update specific fields, excluding password
+	return r.db.Model(user).Select("email", "phone", "address", "group_id", "updated_at").Updates(user).Error
 }
 
 // Delete deletes a user
@@ -90,6 +96,17 @@ func (r *UserRepository) ChangePassword(id int, oldPassword, newPassword string)
 
 	if !user.CheckPassword(oldPassword) {
 		return errors.New("incorrect old password")
+	}
+
+	user.Password = newPassword
+	return r.Update(user)
+}
+
+// ResetPassword resets a user's password (admin only, no old password required)
+func (r *UserRepository) ResetPassword(id int, newPassword string) error {
+	user, err := r.FindByID(id)
+	if err != nil {
+		return err
 	}
 
 	user.Password = newPassword

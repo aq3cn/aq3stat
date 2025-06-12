@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"aq3stat/internal/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 // SetupRoutes sets up all API routes
@@ -19,7 +19,7 @@ func SetupRoutes(router *gin.Engine) {
 	// Health check endpoint
 	router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"status": "healthy",
+			"status":  "healthy",
 			"service": "aq3stat-backend",
 		})
 	})
@@ -42,7 +42,7 @@ func SetupRoutes(router *gin.Engine) {
 		// User routes
 		api.GET("/auth/me", authController.Me)
 		api.GET("/users/:id", userController.GetUser)
-		api.PUT("/users/:id", userController.UpdateUser)
+		api.PUT("/users/:id", userController.UpdateUserProfile)
 		api.POST("/users/:id/change-password", userController.ChangePassword)
 
 		// Website routes
@@ -64,6 +64,8 @@ func SetupRoutes(router *gin.Engine) {
 
 		// User management
 		admin.GET("/users", userController.ListUsers)
+		admin.PUT("/users/:id", userController.UpdateUser)
+		admin.POST("/users/:id/reset-password", userController.ResetPassword)
 		admin.DELETE("/users/:id", userController.DeleteUser)
 
 		// Group management

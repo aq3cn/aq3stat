@@ -37,7 +37,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 
 # 运行阶段
 FROM alpine:3.18
-RUN echo "https://mirrors.aliyun.com/alpine/v3.18/main" > /etc/apk/repositories && echo "https://mirrors.aliyun.com/alpine/v3.18/community" >> /etc/apk/repositories
 
 # 设置标签
 LABEL maintainer="aq3stat Team <support@aq3stat.com>"

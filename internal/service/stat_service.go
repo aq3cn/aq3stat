@@ -8,14 +8,14 @@ import (
 
 // StatService handles statistics related business logic
 type StatService struct {
-	websiteRepo      *repository.WebsiteRepository
+	websiteRepo       *repository.WebsiteRepository
 	statAnalyticsRepo *repository.StatAnalyticsRepository
 }
 
 // NewStatService creates a new stat service
 func NewStatService() *StatService {
 	return &StatService{
-		websiteRepo:      repository.NewWebsiteRepository(),
+		websiteRepo:       repository.NewWebsiteRepository(),
 		statAnalyticsRepo: repository.NewStatAnalyticsRepository(),
 	}
 }
@@ -23,8 +23,8 @@ func NewStatService() *StatService {
 // GetWebsiteStats gets comprehensive stats for a website
 type WebsiteStats struct {
 	// Today stats
-	TodayIPCount  int64 `json:"today_ip_count"`
-	TodayPVCount  int64 `json:"today_pv_count"`
+	TodayIPCount int64 `json:"today_ip_count"`
+	TodayPVCount int64 `json:"today_pv_count"`
 
 	// Yesterday stats
 	YesterdayIPCount int64 `json:"yesterday_ip_count"`
@@ -47,10 +47,10 @@ type WebsiteStats struct {
 	TotalPVCount int64 `json:"total_pv_count"`
 
 	// Average stats
-	AvgDailyIPCount  float64 `json:"avg_daily_ip_count"`
-	AvgDailyPVCount  float64 `json:"avg_daily_pv_count"`
-	AvgWeeklyIPCount float64 `json:"avg_weekly_ip_count"`
-	AvgWeeklyPVCount float64 `json:"avg_weekly_pv_count"`
+	AvgDailyIPCount   float64 `json:"avg_daily_ip_count"`
+	AvgDailyPVCount   float64 `json:"avg_daily_pv_count"`
+	AvgWeeklyIPCount  float64 `json:"avg_weekly_ip_count"`
+	AvgWeeklyPVCount  float64 `json:"avg_weekly_pv_count"`
 	AvgMonthlyIPCount float64 `json:"avg_monthly_ip_count"`
 	AvgMonthlyPVCount float64 `json:"avg_monthly_pv_count"`
 
@@ -60,7 +60,7 @@ type WebsiteStats struct {
 	OnlineVisitors15Min int64 `json:"online_visitors_15min"`
 
 	// New vs returning visitors
-	NewVisitors      int64 `json:"new_visitors"`
+	NewVisitors       int64 `json:"new_visitors"`
 	ReturningVisitors int64 `json:"returning_visitors"`
 
 	// Days since start
@@ -85,7 +85,7 @@ func (s *StatService) GetWebsiteStats(websiteID int) (*WebsiteStats, error) {
 	if weekday == 0 { // Sunday
 		weekday = 7
 	}
-	thisWeekStart := today.AddDate(0, 0, -(weekday-1))
+	thisWeekStart := today.AddDate(0, 0, -(weekday - 1))
 	lastWeekStart := thisWeekStart.AddDate(0, 0, -7)
 
 	// Calculate month start

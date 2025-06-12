@@ -271,3 +271,88 @@ func (r *StatAnalyticsRepository) GetSystemTrendData(days int) ([]DailyStatsData
 
 	return results, nil
 }
+
+// RefererStatsData represents referer statistics data
+type RefererStatsData struct {
+	Name  string `json:"name"`
+	Value int64  `json:"value"`
+}
+
+// DeviceStatsData represents device statistics data
+type DeviceStatsData struct {
+	Name  string `json:"name"`
+	Value int64  `json:"value"`
+}
+
+// GetRefererStats gets referer statistics for a website
+func (r *StatAnalyticsRepository) GetRefererStats(websiteID int) ([]RefererStatsData, error) {
+	var results []RefererStatsData
+
+	// Query to get referer statistics
+	rows, err := r.db.Raw(`
+		SELECT
+			CASE
+				WHEN referer = '' OR referer IS NULL THEN '直接访问'
+				WHEN referer LIKE '%google%' OR referer LIKE '%bing%' OR referer LIKE '%baidu%' OR referer LIKE '%yahoo%' THEN '搜索引擎'
+				WHEN referer LIKE '%facebook%' OR referer LIKE '%twitter%' OR referer LIKE '%weibo%' OR referer LIKE '%qq%' THEN '社交媒体'
+				ELSE '外部链接'
+			END as name,
+			SUM(count) as value
+		FROM stats
+		WHERE website_id = ?
+		GROUP BY name
+		ORDER BY value DESC
+		LIMIT 10
+	`, websiteID).Rows()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item RefererStatsData
+		if err := rows.Scan(&item.Name, &item.Value); err != nil {
+			return nil, err
+		}
+		results = append(results, item)
+	}
+
+	return results, nil
+}
+
+// GetDeviceStats gets device statistics for a website
+func (r *StatAnalyticsRepository) GetDeviceStats(websiteID int) ([]DeviceStatsData, error) {
+	var results []DeviceStatsData
+
+	// Query to get device statistics based on browser and OS
+	rows, err := r.db.Raw(`
+		SELECT
+			CASE
+				WHEN os LIKE '%Windows%' OR os LIKE '%Mac%' OR os LIKE '%Linux%' THEN 'PC'
+				WHEN os LIKE '%Android%' OR os LIKE '%iOS%' OR os LIKE '%iPhone%' THEN '移动设备'
+				WHEN os LIKE '%iPad%' THEN '平板'
+				ELSE '其他'
+			END as name,
+			SUM(count) as value
+		FROM stats
+		WHERE website_id = ? AND os IS NOT NULL AND os != ''
+		GROUP BY name
+		ORDER BY value DESC
+	`, websiteID).Rows()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item DeviceStatsData
+		if err := rows.Scan(&item.Name, &item.Value); err != nil {
+			return nil, err
+		}
+		results = append(results, item)
+	}
+
+	return results, nil
+}

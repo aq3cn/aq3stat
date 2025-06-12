@@ -172,6 +172,56 @@ func (s *StatService) GetWebsiteStats(websiteID int) (*WebsiteStats, error) {
 	return stats, nil
 }
 
+// RefererStatsData represents referer statistics data
+type RefererStatsData struct {
+	Name  string `json:"name"`
+	Value int64  `json:"value"`
+}
+
+// DeviceStatsData represents device statistics data
+type DeviceStatsData struct {
+	Name  string `json:"name"`
+	Value int64  `json:"value"`
+}
+
+// GetWebsiteRefererStats gets referer statistics for a website
+func (s *StatService) GetWebsiteRefererStats(websiteID int) ([]RefererStatsData, error) {
+	repoData, err := s.statAnalyticsRepo.GetRefererStats(websiteID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert repository data to service data
+	result := make([]RefererStatsData, len(repoData))
+	for i, item := range repoData {
+		result[i] = RefererStatsData{
+			Name:  item.Name,
+			Value: item.Value,
+		}
+	}
+
+	return result, nil
+}
+
+// GetWebsiteDeviceStats gets device statistics for a website
+func (s *StatService) GetWebsiteDeviceStats(websiteID int) ([]DeviceStatsData, error) {
+	repoData, err := s.statAnalyticsRepo.GetDeviceStats(websiteID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert repository data to service data
+	result := make([]DeviceStatsData, len(repoData))
+	for i, item := range repoData {
+		result[i] = DeviceStatsData{
+			Name:  item.Name,
+			Value: item.Value,
+		}
+	}
+
+	return result, nil
+}
+
 // GetSystemTodayStats gets system-wide today's statistics
 func (s *StatService) GetSystemTodayStats(date string) (int, int, error) {
 	return s.statAnalyticsRepo.GetSystemTodayStats(date)

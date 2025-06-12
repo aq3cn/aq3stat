@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"aq3stat/internal/model"
 	"aq3stat/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 // WebsiteController handles website related API endpoints
@@ -316,6 +316,90 @@ func (c *WebsiteController) GetWebsiteStats(ctx *gin.Context) {
 	stats, err := c.statService.GetWebsiteStats(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get website stats"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, stats)
+}
+
+// GetWebsiteRefererStats gets referer stats for a website
+func (c *WebsiteController) GetWebsiteRefererStats(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid website ID"})
+		return
+	}
+
+	website, err := c.websiteService.GetWebsiteByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Website not found"})
+		return
+	}
+
+	// Check if user has permission to view stats for this website
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Check if user is the owner or if website is public
+	if website.UserID != userID.(int) && !website.IsPublic {
+		// Check if user has admin rights (from context)
+		isAdmin, exists := ctx.Get("isAdmin")
+		if !exists || !isAdmin.(bool) {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to view stats for this website"})
+			return
+		}
+	}
+
+	// Get referer stats
+	stats, err := c.statService.GetWebsiteRefererStats(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get website referer stats"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, stats)
+}
+
+// GetWebsiteDeviceStats gets device stats for a website
+func (c *WebsiteController) GetWebsiteDeviceStats(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid website ID"})
+		return
+	}
+
+	website, err := c.websiteService.GetWebsiteByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Website not found"})
+		return
+	}
+
+	// Check if user has permission to view stats for this website
+	userID, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Check if user is the owner or if website is public
+	if website.UserID != userID.(int) && !website.IsPublic {
+		// Check if user has admin rights (from context)
+		isAdmin, exists := ctx.Get("isAdmin")
+		if !exists || !isAdmin.(bool) {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to view stats for this website"})
+			return
+		}
+	}
+
+	// Get device stats
+	stats, err := c.statService.GetWebsiteDeviceStats(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get website device stats"})
 		return
 	}
 

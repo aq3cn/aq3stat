@@ -59,6 +59,22 @@ export function getWebsiteStats(id) {
   })
 }
 
+// 获取网站访问来源统计
+export function getWebsiteRefererStats(id) {
+  return request({
+    url: `/websites/${id}/referer-stats`,
+    method: 'get'
+  })
+}
+
+// 获取网站设备统计
+export function getWebsiteDeviceStats(id) {
+  return request({
+    url: `/websites/${id}/device-stats`,
+    method: 'get'
+  })
+}
+
 // 获取公开的网站列表
 export function getPublicWebsites(page = 1, pageSize = 10) {
   return request({

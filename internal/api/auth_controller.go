@@ -3,10 +3,10 @@ package api
 import (
 	"net/http"
 
-	"aq3stat/internal/model"
-	"aq3stat/internal/service"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"aq3stat/internal/model"
+	"aq3stat/internal/service"
 )
 
 // AuthController handles authentication related API endpoints
@@ -140,8 +140,8 @@ func (c *AuthController) GeneratePassword(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"password":     password,
-		"hash":         string(hashedPassword),
+		"password": password,
+		"hash": string(hashedPassword),
 		"verification": verificationResult,
 	})
 }

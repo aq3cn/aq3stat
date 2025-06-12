@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"aq3stat/internal/service"
 	"github.com/gin-gonic/gin"
+	"aq3stat/internal/service"
 )
 
 // CollectorController handles data collection related API endpoints

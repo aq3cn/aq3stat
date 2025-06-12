@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"aq3stat/internal/model"
 	"aq3stat/internal/repository"
 	"aq3stat/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 // UserController handles user related API endpoints
@@ -342,15 +342,15 @@ func (c *UserController) DeleteGroup(ctx *gin.Context) {
 
 // SystemStatsResponse represents system statistics response
 type SystemStatsResponse struct {
-	UserCount      int                         `json:"userCount"`
-	WebsiteCount   int                         `json:"websiteCount"`
-	TodayPV        int                         `json:"todayPV"`
-	TodayIP        int                         `json:"todayIP"`
-	TotalPV        int                         `json:"totalPV"`
-	TotalIP        int                         `json:"totalIP"`
-	RecentUsers    []model.User                `json:"recentUsers"`
-	RecentWebsites []model.Website             `json:"recentWebsites"`
-	TrendData      []repository.DailyStatsData `json:"trendData"`
+	UserCount     int                    `json:"userCount"`
+	WebsiteCount  int                    `json:"websiteCount"`
+	TodayPV       int                    `json:"todayPV"`
+	TodayIP       int                    `json:"todayIP"`
+	TotalPV       int                    `json:"totalPV"`
+	TotalIP       int                    `json:"totalIP"`
+	RecentUsers   []model.User           `json:"recentUsers"`
+	RecentWebsites []model.Website       `json:"recentWebsites"`
+	TrendData     []repository.DailyStatsData `json:"trendData"`
 }
 
 // GetSystemStats gets system-wide statistics for admin dashboard

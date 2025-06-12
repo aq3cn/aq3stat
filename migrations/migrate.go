@@ -11,8 +11,8 @@ import (
 func Migrate() {
 	// Auto migrate all models
 	err := database.DB.AutoMigrate(
-		&model.Group{}, // Migrate groups first
-		&model.User{},  // Then users
+		&model.Group{},     // Migrate groups first
+		&model.User{},      // Then users
 		&model.Website{},
 		&model.Stat{},
 		&model.IPData{},
@@ -84,34 +84,34 @@ func SeedData() {
 func SeedGroups() {
 	groups := []model.Group{
 		{
-			Title:        "Administrator",
-			IsAdmin:      true,
-			SiteAdmin:    true,
-			UserAdmin:    true,
-			RunTimeStat:  true,
-			ClientStat:   true,
-			AdminWebsite: true,
-			HideIcon:     false,
+			Title:          "Administrator",
+			IsAdmin:        true,
+			SiteAdmin:      true,
+			UserAdmin:      true,
+			RunTimeStat:    true,
+			ClientStat:     true,
+			AdminWebsite:   true,
+			HideIcon:       false,
 		},
 		{
-			Title:        "Regular User",
-			IsAdmin:      false,
-			SiteAdmin:    true,
-			UserAdmin:    false,
-			RunTimeStat:  true,
-			ClientStat:   true,
-			AdminWebsite: false,
-			HideIcon:     false,
+			Title:          "Regular User",
+			IsAdmin:        false,
+			SiteAdmin:      true,
+			UserAdmin:      false,
+			RunTimeStat:    true,
+			ClientStat:     true,
+			AdminWebsite:   false,
+			HideIcon:       false,
 		},
 		{
-			Title:        "Premium User",
-			IsAdmin:      false,
-			SiteAdmin:    true,
-			UserAdmin:    false,
-			RunTimeStat:  true,
-			ClientStat:   true,
-			AdminWebsite: false,
-			HideIcon:     true,
+			Title:          "Premium User",
+			IsAdmin:        false,
+			SiteAdmin:      true,
+			UserAdmin:      false,
+			RunTimeStat:    true,
+			ClientStat:     true,
+			AdminWebsite:   false,
+			HideIcon:       true,
 		},
 	}
 

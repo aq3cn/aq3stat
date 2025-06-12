@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"aq3stat/internal/api"
 	"aq3stat/migrations"
 	"aq3stat/pkg/database"
 	"aq3stat/pkg/logger"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {

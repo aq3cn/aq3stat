@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { getWebsite, getWebsiteStats } from '@/api/website'
+import { getWebsite, getWebsiteStats, getWebsiteRefererStats, getWebsiteDeviceStats } from '@/api/website'
 
 export default {
   name: 'WebsiteStats',
@@ -122,7 +122,9 @@ export default {
       trendChart: null,
       sourceChart: null,
       deviceChart: null,
-      websiteNotFound: false
+      websiteNotFound: false,
+      refererStats: [],
+      deviceStats: []
     }
   },
   computed: {
@@ -217,6 +219,26 @@ export default {
         // 获取统计数据
         const statsResponse = await getWebsiteStats(this.websiteId)
         console.log('Stats response:', statsResponse)
+
+        // 获取访问来源统计
+        try {
+          const refererResponse = await getWebsiteRefererStats(this.websiteId)
+          this.refererStats = refererResponse || []
+          console.log('Referer stats:', this.refererStats)
+        } catch (error) {
+          console.warn('Failed to get referer stats:', error)
+          this.refererStats = []
+        }
+
+        // 获取设备统计
+        try {
+          const deviceResponse = await getWebsiteDeviceStats(this.websiteId)
+          this.deviceStats = deviceResponse || []
+          console.log('Device stats:', this.deviceStats)
+        } catch (error) {
+          console.warn('Failed to get device stats:', error)
+          this.deviceStats = []
+        }
 
         // 确保所有必要的字段都存在，如果不存在则设置默认值
         this.stats = {
@@ -414,7 +436,7 @@ export default {
 
       this.trendChart.setOption(option)
     },
-    // 初始化来源图表（模拟数据）
+    // 初始化来源图表（使用真实数据）
     initSourceChart() {
       // 检查 DOM 元素是否存在
       if (!this.$refs.sourceChart) {
@@ -435,9 +457,22 @@ export default {
         return
       }
 
+      // 准备图表数据
+      const chartData = this.refererStats.length > 0
+        ? this.refererStats.map(item => ({
+            value: item.value,
+            name: item.name
+          }))
+        : [{ value: 1, name: '暂无数据' }]
+
+      const legendData = this.refererStats.length > 0
+        ? this.refererStats.map(item => item.name)
+        : ['暂无数据']
+
       const option = {
         title: {
-          text: '访问来源'
+          text: '访问来源',
+          left: 'center'
         },
         tooltip: {
           trigger: 'item',
@@ -446,7 +481,7 @@ export default {
         legend: {
           orient: 'vertical',
           left: 10,
-          data: ['直接访问', '搜索引擎', '外部链接', '社交媒体', '其他']
+          data: legendData
         },
         series: [
           {
@@ -461,27 +496,21 @@ export default {
             emphasis: {
               label: {
                 show: true,
-                fontSize: '30',
+                fontSize: '20',
                 fontWeight: 'bold'
               }
             },
             labelLine: {
               show: false
             },
-            data: [
-              { value: 335, name: '直接访问' },
-              { value: 310, name: '搜索引擎' },
-              { value: 234, name: '外部链接' },
-              { value: 135, name: '社交媒体' },
-              { value: 1548, name: '其他' }
-            ]
+            data: chartData
           }
         ]
       }
 
       this.sourceChart.setOption(option)
     },
-    // 初始化设备图表（模拟数据）
+    // 初始化设备图表（使用真实数据）
     initDeviceChart() {
       // 检查 DOM 元素是否存在
       if (!this.$refs.deviceChart) {
@@ -502,9 +531,19 @@ export default {
         return
       }
 
+      // 准备图表数据
+      const deviceNames = this.deviceStats.length > 0
+        ? this.deviceStats.map(item => item.name)
+        : ['暂无数据']
+
+      const deviceValues = this.deviceStats.length > 0
+        ? this.deviceStats.map(item => item.value)
+        : [1]
+
       const option = {
         title: {
-          text: '访问设备'
+          text: '访问设备',
+          left: 'center'
         },
         tooltip: {
           trigger: 'axis',
@@ -512,13 +551,11 @@ export default {
             type: 'shadow'
           }
         },
-        legend: {
-          data: ['PC', '移动设备', '平板']
-        },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
+          top: '15%',
           containLabel: true
         },
         xAxis: {
@@ -527,23 +564,19 @@ export default {
         },
         yAxis: {
           type: 'category',
-          data: ['今日', '昨日', '本周', '上周']
+          data: deviceNames
         },
         series: [
           {
-            name: 'PC',
+            name: '访问量',
             type: 'bar',
-            data: [320, 302, 1200, 1000]
-          },
-          {
-            name: '移动设备',
-            type: 'bar',
-            data: [120, 132, 500, 400]
-          },
-          {
-            name: '平板',
-            type: 'bar',
-            data: [60, 72, 200, 150]
+            data: deviceValues,
+            itemStyle: {
+              color: function(params) {
+                const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399']
+                return colors[params.dataIndex % colors.length]
+              }
+            }
           }
         ]
       }

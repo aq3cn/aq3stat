@@ -2,6 +2,7 @@ package api
 
 import (
 	"aq3stat/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -53,6 +54,8 @@ func SetupRoutes(router *gin.Engine) {
 		api.DELETE("/websites/:id", websiteController.DeleteWebsite)
 		api.GET("/websites/:id/tracking-code", websiteController.GetTrackingCode)
 		api.GET("/websites/:id/stats", websiteController.GetWebsiteStats)
+		api.GET("/websites/:id/referer-stats", websiteController.GetWebsiteRefererStats)
+		api.GET("/websites/:id/device-stats", websiteController.GetWebsiteDeviceStats)
 	}
 
 	// Admin routes
